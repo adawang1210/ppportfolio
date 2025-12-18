@@ -189,7 +189,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 h-full">
             <div className="flex items-center justify-center p-6 md:p-8 lg:p-16 relative">
               <div
-                className="relative w-full max-w-lg aspect-[3/4] transition-all duration-300 ease-out hover:scale-105 group px-4"
+                className="relative w-full max-w-lg aspect-[3/4] transition-all duration-300 ease-out hover:scale-105 group px-4 overflow-hidden"
                 style={{
                   transform: `scale(${imageScale}) translateX(${imageTranslateX}%)`,
                   transformOrigin: "center center",
@@ -201,6 +201,7 @@ export default function Home() {
                   fill
                   className="object-cover transition-all duration-700 group-hover:grayscale"
                   priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
             </div>
