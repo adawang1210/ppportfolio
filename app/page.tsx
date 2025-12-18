@@ -196,8 +196,8 @@ export default function Home() {
                 }}
               >
                 <Image
-                  src="/images/profile.jpg"
-                  alt="Chen Kai"
+                  src="public/images/profile.jpg"
+                  alt="Chen Chen Kai"
                   fill
                   className="object-cover transition-all duration-700 group-hover:grayscale"
                   priority
