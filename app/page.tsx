@@ -573,8 +573,8 @@ export default function Home() {
           <div
             className="transition-all duration-700"
             style={{
-              opacity: 1,
-              transform: "translateY(0px)",
+              opacity: Math.min(1, Math.max(0, (scrollY - 1800) / 200)),
+              transform: `translateY(${Math.max(0, 40 - (scrollY - 1800) / 10)}px)`,
             }}
           >
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-black mb-12 md:mb-16">
