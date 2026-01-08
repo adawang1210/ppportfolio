@@ -7,12 +7,27 @@ import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
+type ProjectStatus = "shipped" | "in-progress" | "archived"
+
+type Project = {
+  title: string
+  description: string
+  status: ProjectStatus
+  year: string
+  stars: number
+  forks: number
+  tags: string[]
+  link: string
+  scrollOffset: number
+}
+
 const contactEndpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT
 
 export default function Home() {
   const [scrollY, setScrollY] = useState(0)
   const [hackText, setHackText] = useState("Chen Kai")
   const [isHacking, setIsHacking] = useState(false)
+  const [projectFilter, setProjectFilter] = useState<"all" | ProjectStatus>("all")
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -94,6 +109,72 @@ export default function Home() {
   const navOpacity = scrollY > 100 ? 0.4 : 1
 
   const navTextColor = isInContactSection ? "text-white" : "text-foreground"
+
+  const statusStyles: Record<ProjectStatus, { label: string; dotColor: string }> = {
+    shipped: { label: "shipped", dotColor: "bg-green-500" },
+    "in-progress": { label: "in-progress", dotColor: "bg-yellow-500" },
+    archived: { label: "archived", dotColor: "bg-gray-400" },
+  }
+
+  const projects: Project[] = [
+    {
+      title: "TradeSystem",
+      description:
+        "Spring Boot 3 IPO simulation that stress-tests high-concurrency order windows with per-investor locking, in-memory data structures, and admin tooling for draws and refunds.",
+      status: "shipped",
+      year: "2025",
+      stars: 5,
+      forks: 2,
+      tags: ["Spring Boot", "Java 17", "Concurrency", "IPO"],
+      link: "https://github.com/adawang1210/TradeSystem",
+      scrollOffset: 1200,
+    },
+    {
+      title: "RAG Consistency Platform",
+      description:
+        "End-to-end Retrieval-Augmented Generation stack with FAISS retrieval, τ-scored consistency checks, and a Next.js dashboard for visualizing evidence clusters and streaming answers.",
+      status: "in-progress",
+      year: "2025",
+      stars: 11,
+      forks: 4,
+      tags: ["FastAPI", "Next.js 15", "FAISS", "RAG"],
+      link: "https://github.com/adawang1210/RAG-Consistency",
+      scrollOffset: 1300,
+    },
+    {
+      title: "MindMap PDF Analyzer",
+      description:
+        "Vue + Flask tool that ingests PDFs, leverages Gemini for semantic analysis, and auto-generates interactive mind maps with quiz flows and scoring.",
+      status: "shipped",
+      year: "2025",
+      stars: 6,
+      forks: 3,
+      tags: ["Vue 3", "Flask", "Gemini API", "MindElixir"],
+      link: "https://github.com/adawang1210/mind_map",
+      scrollOffset: 1400,
+    },
+    {
+      title: "Crypto Morning Pulse Discord Bot",
+      description:
+        "Python-powered Discord bot that summarizes daily crypto headlines, scans market sentiment, and posts an automated morning briefing with price snapshots and curated sources.",
+      status: "shipped",
+      year: "2026",
+      stars: 3,
+      forks: 1,
+      tags: ["Python", "Discord.py", "Crypto APIs", "Automation"],
+      link: "https://github.com/adawang1210/crypto-discord-bot",
+      scrollOffset: 1500,
+    },
+  ]
+
+  const filteredProjects = projects.filter((project) => projectFilter === "all" || project.status === projectFilter)
+
+  const filterOptions: { label: string; value: "all" | ProjectStatus }[] = [
+    { label: "ALL", value: "all" },
+    { label: "SHIPPED", value: "shipped" },
+    { label: "IN-PROGRESS", value: "in-progress" },
+    { label: "ARCHIVED", value: "archived" },
+  ]
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -358,211 +439,93 @@ export default function Home() {
               </h2>
 
               <div className="flex gap-2 flex-wrap">
-                <button className="px-4 py-2 rounded-full border-2 border-black bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors">
-                  ALL
-                </button>
-                <button className="px-4 py-2 rounded-full border-2 border-gray-300 text-gray-600 text-sm font-medium hover:border-black hover:text-black transition-colors">
-                  SHIPPED
-                </button>
-                <button className="px-4 py-2 rounded-full border-2 border-gray-300 text-gray-600 text-sm font-medium hover:border-black hover:text-black transition-colors">
-                  IN-PROGRESS
-                </button>
-                <button className="px-4 py-2 rounded-full border-2 border-gray-300 text-gray-600 text-sm font-medium hover:border-black hover:text-black transition-colors">
-                  ARCHIVED
-                </button>
+                {filterOptions.map((option) => {
+                  const isActive = projectFilter === option.value
+                  return (
+                    <button
+                      key={option.value}
+                      className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-colors ${
+                        isActive
+                          ? "border-black bg-black text-white"
+                          : "border-gray-300 text-gray-600 hover:border-black hover:text-black"
+                      }`}
+                      onClick={() => setProjectFilter(option.value)}
+                      aria-pressed={isActive}
+                      type="button"
+                    >
+                      {option.label}
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-
-              {/* TradeSystem IPO Simulator */}
-              <div
-                className="group relative border-2 border-gray-200 rounded-lg p-6 hover:border-black transition-all duration-300"
-                style={{
-                  opacity: Math.min(1, Math.max(0, (scrollY - 1200) / 200)),
-                  transform: `translateY(${Math.max(0, 30 - (scrollY - 1200) / 8)}px)`,
-                }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span className="text-xs text-gray-500">shipped</span>
-                  </div>
-                  <span className="text-xs text-gray-500 font-medium">2024</span>
-                </div>
-
-                <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors">
-                  TradeSystem
-                </h3>
-
-                <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                  Spring Boot 3 IPO simulation that stress-tests high-concurrency order windows with per-investor locking,
-                  in-memory data structures, and admin tooling for draws and refunds.
-                </p>
-
-                <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                    <span>5</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="6" y1="3" x2="6" y2="15"></line>
-                      <circle cx="18" cy="6" r="3"></circle>
-                      <circle cx="6" cy="18" r="3"></circle>
-                      <path d="M18 9a9 9 0 0 1-9 9"></path>
-                    </svg>
-                    <span>2</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">Spring Boot</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">Java 17</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">Concurrency</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">IPO</span>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <Link
-                    href="https://github.com/adawang1210/TradeSystem"
-                    className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-black transition-colors"
+              {filteredProjects.map((project, index) => {
+                const styleOffset = project.scrollOffset + index * 20
+                return (
+                  <div
+                    key={project.title}
+                    className="group relative border-2 border-gray-200 rounded-lg p-6 hover:border-black transition-all duration-300"
+                    style={{
+                      opacity: Math.min(1, Math.max(0, (scrollY - styleOffset) / 200)),
+                      transform: `translateY(${Math.max(0, 30 - (scrollY - styleOffset) / 8)}px)`,
+                    }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                    </svg>
-                    source
-                  </Link>
-                </div>
-              </div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${statusStyles[project.status].dotColor}`}></div>
+                        <span className="text-xs text-gray-500">{statusStyles[project.status].label}</span>
+                      </div>
+                      <span className="text-xs text-gray-500 font-medium">{project.year}</span>
+                    </div>
 
-              {/* RAG Consistency Platform */}
-              <div
-                className="group relative border-2 border-gray-200 rounded-lg p-6 hover:border-black transition-all duration-300"
-                style={{
-                  opacity: Math.min(1, Math.max(0, (scrollY - 1300) / 200)),
-                  transform: `translateY(${Math.max(0, 30 - (scrollY - 1300) / 8)}px)`,
-                }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                    <span className="text-xs text-gray-500">in-progress</span>
+                    <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors">
+                      {project.title}
+                    </h3>
+
+                    <p className="text-sm text-gray-600 leading-relaxed mb-4">{project.description}</p>
+
+                    <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <span>{project.stars}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="6" y1="3" x2="6" y2="15"></line>
+                          <circle cx="18" cy="6" r="3"></circle>
+                          <circle cx="6" cy="18" r="3"></circle>
+                          <path d="M18 9a9 9 0 0 1-9 9"></path>
+                        </svg>
+                        <span>{project.forks}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.tags.map((tag) => (
+                        <span key={tag} className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <Link
+                        href={project.link}
+                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-black transition-colors"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+                        </svg>
+                        source
+                      </Link>
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-500 font-medium">2025</span>
-                </div>
-
-                <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors">
-                  RAG Consistency Platform
-                </h3>
-
-                <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                  End-to-end Retrieval-Augmented Generation stack with FAISS retrieval, τ-scored consistency checks, and a
-                  Next.js dashboard for visualizing evidence clusters and streaming answers.
-                </p>
-
-                <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                    <span>11</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="6" y1="3" x2="6" y2="15"></line>
-                      <circle cx="18" cy="6" r="3"></circle>
-                      <circle cx="6" cy="18" r="3"></circle>
-                      <path d="M18 9a9 9 0 0 1-9 9"></path>
-                    </svg>
-                    <span>4</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">FastAPI</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">Next.js 15</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">FAISS</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">RAG</span>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <Link
-                    href="https://github.com/adawang1210/RAG-Consistency"
-                    className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-black transition-colors"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                    </svg>
-                    source
-                  </Link>
-                </div>
-              </div>
-
-              {/* MindMap PDF Analyzer */}
-              <div
-                className="group relative border-2 border-gray-200 rounded-lg p-6 hover:border-black transition-all duration-300"
-                style={{
-                  opacity: Math.min(1, Math.max(0, (scrollY - 1400) / 200)),
-                  transform: `translateY(${Math.max(0, 30 - (scrollY - 1400) / 8)}px)`,
-                }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span className="text-xs text-gray-500">shipped</span>
-                  </div>
-                  <span className="text-xs text-gray-500 font-medium">2024</span>
-                </div>
-
-                <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors">
-                  MindMap PDF Analyzer
-                </h3>
-
-                <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                  Vue + Flask tool that ingests PDFs, leverages Gemini for semantic analysis, and auto-generates interactive
-                  mind maps with quiz flows and scoring.
-                </p>
-
-                <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                    <span>6</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="6" y1="3" x2="6" y2="15"></line>
-                      <circle cx="18" cy="6" r="3"></circle>
-                      <circle cx="6" cy="18" r="3"></circle>
-                      <path d="M18 9a9 9 0 0 1-9 9"></path>
-                    </svg>
-                    <span>3</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">Vue 3</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">Flask</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">Gemini API</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">MindElixir</span>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <Link
-                    href="https://github.com/adawang1210/mind_map"
-                    className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-black transition-colors"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                    </svg>
-                    source
-                  </Link>
-                </div>
-              </div>
+                )
+              })}
             </div>
           </div>
         </div>
